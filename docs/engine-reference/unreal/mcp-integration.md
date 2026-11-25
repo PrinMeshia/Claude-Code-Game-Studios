@@ -1,5 +1,7 @@
 # Unreal Engine 5.8 — Native MCP Integration
 
+**Last verified:** 2026-11-25 (Epic UE 5.8 API reference and Unreal MCP editor workflow)
+
 **Status:** Experimental engine feature  
 **Target client:** Claude Code  
 **Default endpoint:** `http://127.0.0.1:8000/mcp`
