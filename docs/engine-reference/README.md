@@ -26,6 +26,7 @@ than one engine, and has a page per library instead of `modules/`:
 ├── deprecated-apis.md      # "Don't use X → Use Y" lookup tables
 ├── current-best-practices.md  # New practices not in model training data
 ├── PLUGINS.md              # Unity and Unreal only: index of the plugin pages
+│   └── mcp-integration.md   # Unreal native MCP server and Claude Code connection
 ├── plugins/                # Unity and Unreal only: one page per plugin
 │   └── ...
 └── modules/                # Per-subsystem quick references, one subsystem per file
