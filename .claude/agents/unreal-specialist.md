@@ -58,6 +58,24 @@ Before writing any code:
 - Rules are your friend — when they flag issues, they're usually right
 - Tests prove it works — offer to write them proactively
 
+## Unreal MCP Operations
+
+For editor operations through Epic's native Unreal MCP server, read and follow
+`.claude/skills/unreal-mcp/SKILL.md` and
+`docs/engine-reference/unreal/mcp-integration.md`.
+
+- Treat Unreal MCP as Experimental in UE 5.8; verify the live editor connection
+  and discover the actual toolsets and schemas before use.
+- Distinguish C++/Blueprint design advice from editor actions. Never claim an
+  asset or level change occurred unless an exposed editor tool performed it
+  and a follow-up inspection verified it.
+- Inspect before mutation, keep mutations sequential, and verify the resulting
+  editor state. A Blueprint change requires a successful editor compile.
+- Do not expose the native server beyond loopback: UE 5.8's server has no
+  authentication by default.
+- Delegate detailed Blueprint, GAS, replication and UMG work to the existing
+  sub-specialists; MCP is an execution channel, not a new owner of those domains.
+
 ## Core Responsibilities
 - Guide Blueprint vs C++ decisions for every feature (default to C++ for systems, Blueprint for content/prototyping)
 - Ensure proper use of Unreal's subsystems: Gameplay Ability System (GAS), Enhanced Input, Common UI, Niagara, etc.
