@@ -840,7 +840,7 @@ skills:
     last_category: ""
     last_category_result: ""
     priority: high
-    category: engine
+    category: utility
 
 agents:
   # Tier 1 Directors
