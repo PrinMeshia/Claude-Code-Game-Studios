@@ -9,6 +9,10 @@
 
 ## Static Assertions (Structural)
 
+- [ ] Directs editor operations to `.claude/skills/unreal-mcp/SKILL.md`
+- [ ] Requires live MCP discovery and post-operation verification; does not claim unverified editor changes
+
+
 - [ ] `description:` field is present and domain-specific (references Unreal Engine)
 - [ ] `tools:` reads Read, Glob, Grep, Write, Edit, Bash and `Agent`, and its body tells it to start only its four sub-specialists (ue-gas, ue-blueprint, ue-replication, ue-umg), since a type list in a subagent's `tools` is ignored
 - [ ] Model tier is `inherit` — frontmatter `model:` reads exactly `inherit` (tiers: `.claude/docs/model-tiers.md`)
@@ -52,6 +56,17 @@
 - Notes the coordination required: changes to replication architecture must involve lead-programmer
 - Does NOT unilaterally declare "migrate to C++" without surfacing the scope of the refactor to the user
 - Produces a concrete migration recommendation, not a vague suggestion
+
+### Case 6: MCP execution — editor mutation is verified
+
+**Input**: "Use Unreal MCP to change the selected Actor's Mobility to Movable."
+**Expected behavior**:
+- Reads the selected Actor and current Mobility before editing
+- Uses only a tool and schema discovered from the live MCP server
+- Performs the mutation sequentially
+- Reads Mobility again and reports the observed value
+- Reports NOT CONNECTED or NOT VERIFIED if the live server or post-check is unavailable
+- Does not edit the corresponding `.uasset` file directly
 
 ### Case 5: Context pass — version-appropriate API suggestions
 **Input context**: Project engine-reference file states Unreal Engine 5.3.
