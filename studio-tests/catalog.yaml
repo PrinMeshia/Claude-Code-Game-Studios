@@ -830,6 +830,18 @@ skills:
     priority: low
     category: utility
 
+
+  - name: unreal-mcp
+    spec: studio-tests/skills/engine/unreal-mcp.md
+    last_static: ""
+    last_static_result: ""
+    last_spec: ""
+    last_spec_result: ""
+    last_category: ""
+    last_category_result: ""
+    priority: high
+    category: engine
+
 agents:
   # Tier 1 Directors
   - name: creative-director
