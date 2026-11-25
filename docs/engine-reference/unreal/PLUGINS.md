@@ -178,6 +178,9 @@ engine's word.
 ### ⚠️ MCP Server (UE 5.8+)
 - **Purpose:** Lets agentic AI systems connect to the Unreal Editor to understand the engine and project and help build assets or systems
 - **Status:** Experimental
+- **Default endpoint:** `http://127.0.0.1:8000/mcp` (local HTTP)
+- **Claude Code setup:** See [mcp-integration.md](mcp-integration.md) for plugin activation, local client registration, discovery, security, and verification
+- **Security:** UE 5.8's native server has no authentication by default; keep it on loopback
 - **Official:** UE 5.8 release notes, *MCP Server (Experimental)*
 
 ---
