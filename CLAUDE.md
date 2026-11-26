@@ -27,11 +27,24 @@ Each agent owns a specific domain, enforcing separation of concerns and quality.
      that need the pinned version read that file on demand either way. -->
 
 
+## Multi-project Workspace
+
+The target workspace layout places independent project checkouts under `projects/<project-id>/`.
+Each child owns its source tree, engine files and `project.yaml`; the framework owns shared agents,
+skills, hooks and studio tests. See `docs/architecture/multi-project-workspace.md`.
+
+**Current limitation:** multi-project discovery and active-project context propagation are not yet
+implemented. The current hooks and skills still operate in single-project-at-repository-root mode.
+Do not assume that a child folder is automatically selected. Preserve this warning until the
+workspace runtime and its isolation tests are complete.
+
 ## Technical Preferences
 
-`project.yaml` at the repo root is the primary config store — engine, specialists,
-naming, platform, performance, modes. Skills resolve it via `resolve_config`
-(see `.claude/docs/config-resolution.md`).
+In the currently supported single-project mode, `project.yaml` at the repo root is the primary
+config store — engine, specialists, naming, platform, performance and modes. Skills resolve it
+via `resolve_config` (see `.claude/docs/config-resolution.md`). In the target multi-project mode,
+each child project's own `project.yaml` will become authoritative; the root file must not be
+silently reinterpreted as a workspace manifest.
 
 `.claude/docs/technical-preferences.md` is the **legacy fallback**, read on demand
 when a key is absent from `project.yaml`. It is not imported here: before
