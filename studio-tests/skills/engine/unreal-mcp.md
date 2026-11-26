@@ -7,6 +7,13 @@ discovers the live toolsets, and guides bounded editor operations with explicit
 post-operation verification. It does not install a third-party server or assume
 tool names and schemas from another engine version.
 
+## Fixture Defaults
+
+- Engine: Unreal Engine 5.8, as pinned by this repository.
+- Project: an existing Unreal project opened in the intended editor instance.
+- Automation mode: collaborative; local configuration changes and destructive editor operations require explicit approval.
+- Default endpoint: `http://127.0.0.1:8000/mcp`, unless the editor is configured otherwise.
+
 ## Static Assertions (Structural)
 
 - [ ] Has required frontmatter: `name`, `description`, `argument-hint`,
