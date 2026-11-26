@@ -1,6 +1,6 @@
 # Unreal Engine 5.8 — Native MCP Integration
 
-**Last verified:** 2026-11-25 (Epic UE 5.8 API reference and Unreal MCP editor workflow)
+**Last verified:** 2026-11-26 (Epic UE 5.8 Unreal MCP documentation)
 
 **Status:** Experimental engine feature  
 **Target client:** Claude Code  
@@ -13,7 +13,7 @@ This document describes the native Epic Unreal MCP server. It does not install o
 - **Unreal MCP** (`ModelContextProtocol`): hosts the MCP server in the editor process.
 - **All Toolsets**: enables the default collection of editor toolsets.
 - **Toolset Registry**: dependency used to register toolsets; the editor enables it when required.
-- **Claude Code**: connects to the editor over Streamable HTTP.
+- **Claude Code**: connects to the editor over the local HTTP endpoint.
 
 The native Unreal MCP feature is Experimental in UE 5.8. Tool availability and schemas depend on the exact engine build and enabled toolset plugins. Discover them from the live server rather than relying on a static list.
 
@@ -22,8 +22,8 @@ The native Unreal MCP feature is Experimental in UE 5.8. Tool availability and s
 1. Open the intended COV `.uproject` in the intended Unreal Editor version.
 2. In **Edit > Plugins**, enable **Unreal MCP** and **All Toolsets**.
 3. Restart the editor when prompted.
-4. Open **Edit > Editor Preferences > Agentic Workflows > Model Context Protocol**.
-5. Enable **Auto Start Server**. The UE 5.8 defaults are port `8000` and path `/mcp`.
+4. Open **Edit > Editor Preferences > General > Model Context Protocol**.
+5. Enable **Auto Start Server** (disabled by default in the UE 5.8 reference). The defaults are port `8000` and path `/mcp`.
 6. Wait until the editor has finished loading the project and level.
 
 If Auto Start Server is disabled, run this in the editor console:
@@ -36,28 +36,31 @@ The server is local to the editor process. Do not assume it is running just beca
 
 ## Connect Claude Code
 
-### Preferred: generate the client configuration
+### Preferred: local-scoped registration
 
-Use the Model Context Protocol editor preferences to select **Claude Code** and invoke **Generate Client Config**. The console alternative is:
+From the COV project root, first check whether the server is already registered:
+
+```powershell
+claude mcp get unreal-mcp
+```
+
+If it is not configured, show the command and obtain the user's approval before registering it because this changes local Claude Code configuration:
+
+```powershell
+claude mcp add --transport http unreal-mcp --scope local http://127.0.0.1:8000/mcp
+```
+
+Then restart/reload Claude Code and inspect `/mcp`. The `local` scope keeps this developer-specific editor endpoint out of the shared project configuration.
+
+### Optional: project-level client configuration
+
+Only when the user explicitly chooses a shared project configuration, use the Model Context Protocol editor preferences to select **Claude Code** and invoke **Generate Client Config**. The console alternative is:
 
 ```text
 ModelContextProtocol.GenerateClientConfig ClaudeCode
 ```
 
-Inspect the output log and confirm where `.mcp.json` was generated. With installed engine builds it is expected in the project root; with source engine builds it may be written under the engine root. If it is outside the project, do not launch Claude Code from the wrong directory: register the server locally for the actual project instead.
-
-### Local Claude Code registration
-
-From the COV project root, if the server has not already been registered:
-
-```powershell
-claude mcp add --transport http unreal-mcp --scope local http://127.0.0.1:8000/mcp
-claude mcp get unreal-mcp
-```
-
-Then restart/reload Claude Code and inspect `/mcp`.
-
-The `local` scope stores the connection in the user's Claude Code configuration for this project. It avoids committing a machine-specific editor endpoint to the repository. Use project scope and a committed `.mcp.json` only after an explicit team decision.
+The UE 5.8 documentation says this writes `.mcp.json` to the project root. Inspect the Output Log and the generated file. Do not stage or commit it unless the team explicitly decides to share this configuration; the repository does not ignore `.mcp.json` by default.
 
 ## Verify the connection
 
@@ -105,7 +108,7 @@ Never modify `.uasset` or `.umap` files directly as text or bytes. Use editor to
 
 ## References
 
-- Epic, [Unreal MCP in Unreal Editor](https://dev.epicgames.com/documentation/unreal-engine/unreal-mcp-in-unreal-editor) — setup, toolsets, security model, and workflow.
+- Epic, [Unreal MCP in Unreal Editor](https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-mcp-in-unreal-editor?application_version=5.8) — setup, toolsets, security model, and workflow.
 - Epic, [ModelContextProtocol plugin API for UE 5.8](https://dev.epicgames.com/documentation/unreal-engine/API/Plugins/ModelContextProtocol?application_version=5.8).
 - Epic, [Unreal MCP server API for UE 5.8](https://dev.epicgames.com/documentation/unreal-engine/API/Plugins/ModelContextProtocol/FModelContextProtocolServer?application_version=5.8).
 - Anthropic, [Connect Claude Code to tools via MCP](https://code.claude.com/docs/en/mcp).
