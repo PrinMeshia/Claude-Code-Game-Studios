@@ -211,6 +211,35 @@ Already using an older version of this template? See [UPGRADING.md](UPGRADING.md
 for step-by-step migration instructions, a breakdown of what changed between
 versions, and which files are safe to overwrite vs. which need a manual merge.
 
+## Multi-project workspace
+
+The repository can host multiple independent game projects under `projects/`:
+
+```
+projects/
+  README.md
+  covLab/          # independent project checkout
+  another-game/    # another independent project checkout
+```
+
+Each project owns its engine, engine version, code/content roots, tests and
+project-specific `project.yaml`. Keep each project's Git history independent
+(use a separate clone or an explicitly configured submodule); do not commit
+game source, generated engine files or assets as part of the framework repository.
+
+**Important:** this directory convention is the workspace target, not yet a
+complete multi-project runtime. The current hooks, skills and configuration
+resolver still assume a single active project rooted at the repository root.
+Until project-context routing is implemented and tested, do not assume that
+selecting a folder under `projects/` automatically redirects commands, hooks
+or agents to it. The existing root-level single-project workflow remains the
+supported mode.
+
+See [Multi-project workspace architecture](docs/architecture/multi-project-workspace.md)
+for the migration boundaries and implementation requirements.
+
+---
+
 ## Project Structure
 
 ```
