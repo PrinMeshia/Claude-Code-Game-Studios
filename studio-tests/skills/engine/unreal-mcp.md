@@ -13,6 +13,8 @@ tool names and schemas from another engine version.
       `user-invocable`, and `allowed-tools`
 - [ ] Names the native Unreal MCP server and identifies it as Experimental
 - [ ] Documents the default UE 5.8 endpoint including `/mcp`
+- [ ] Uses the UE 5.8 Editor Preferences path: `General > Model Context Protocol`
+- [ ] Treats Auto Start Server as disabled by default in the UE 5.8 reference
 - [ ] Uses a local Claude Code connection by default; does not silently commit
       a project-wide `.mcp.json`
 - [ ] Requires live tool discovery before invoking unfamiliar tools
@@ -36,12 +38,10 @@ tool names and schemas from another engine version.
 **Expected behavior:**
 1. Confirms the pinned/installed engine version.
 2. Guides enabling Unreal MCP and All Toolsets, then editor restart.
-3. Confirms Auto Start Server or instructs the user to run
-   `ModelContextProtocol.StartServer`.
+3. Uses `Edit > Editor Preferences > General > Model Context Protocol`; notes that Auto Start Server is disabled by default in the UE 5.8 reference, then guides enabling it or running `ModelContextProtocol.StartServer`.
 4. Uses `http://127.0.0.1:8000/mcp` unless the user configured another endpoint.
-5. Prefers Epic's generated Claude Code config; otherwise uses local-scoped
-   `claude mcp add --transport http unreal-mcp --scope local ...`.
-6. Does not create or commit a project-wide `.mcp.json` without explicit intent.
+5. Prefers local-scoped registration with `claude mcp add --transport http unreal-mcp --scope local ...`, after checking for an existing registration and obtaining approval before changing local Claude Code configuration.
+6. Uses Epic's generated project `.mcp.json` only when the user explicitly chooses project-level configuration; does not stage or commit it without team approval.
 7. Verifies the connection in `/mcp` and through a live read-only editor call.
 
 ### Case 2: Server is unavailable
