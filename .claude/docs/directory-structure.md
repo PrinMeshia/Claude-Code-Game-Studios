@@ -1,5 +1,9 @@
 # Directory Structure
 
+The framework workspace and an individual game project are distinct scopes. The multi-project target
+layout is documented in `docs/architecture/multi-project-workspace.md`; the project-root tree below
+continues to describe the currently supported single-project layout.
+
 ```text
 /
 ├── CLAUDE.md                    # Master configuration
