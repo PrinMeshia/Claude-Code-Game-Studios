@@ -158,10 +158,16 @@ engine's folders and default commands come from one table,
 
 ## Configuration
 
-`project.yaml` at the repo root is the single source of truth for how the
-studio behaves on your project — engine, naming conventions, and a `modes`
+`project.yaml` at the repo root is the single source of truth in the currently
+supported single-project mode — engine, naming conventions, and a `modes`
 block that controls how much process every skill enforces. `/start` writes it
 for you; you rarely need to hand-edit it.
+
+For the target multi-project workspace layout, each child under `projects/`
+will own its own `project.yaml`. The framework's current hooks and skills do
+not yet propagate an active child-project context end to end; see the
+[multi-project architecture decision](docs/architecture/multi-project-workspace.md)
+before placing working projects there.
 
 The one question that matters most is **`modes.rigor`** — `minimal`, `standard`,
 or `full`. It's a single front door over six separate knobs (`workflow` —
@@ -272,6 +278,7 @@ docs/                               # Technical documentation, ADRs, engine refe
 tests/                              # Test suites (unit, integration, performance, playtest)
 tools/                              # Build and pipeline tools
 production/                         # Sprint plans, milestones, release tracking
+projects/                           # Independent project checkouts (multi-project runtime pending)
 studio-tests/                       # QA for the skills and agents themselves — see below
 ```
 
