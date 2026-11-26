@@ -33,14 +33,13 @@ If the user has not specified a mode, infer it from the request. Do not ask them
 1. Read `docs/engine-reference/unreal/VERSION.md` and confirm the pinned and installed engine versions. If the installed version is unknown, ask the user to confirm the editor version before relying on version-specific behavior.
 2. Confirm that the project is an Unreal project by locating its `.uproject`. Do not modify the project file just to enable MCP.
 3. In Unreal Editor, ask the user to enable the **Unreal MCP** plugin and **All Toolsets** plugin (the Toolset Registry dependency is enabled by the editor). Restart the editor when prompted.
-4. In Editor Preferences, open **Agentic Workflows > Model Context Protocol**. Confirm Auto Start Server is enabled, or have the user start it from the editor console with `ModelContextProtocol.StartServer`.
+4. In UE 5.8, open **Edit > Editor Preferences > General > Model Context Protocol**. Auto Start Server is disabled by default in the UE 5.8 reference; ask the user to enable it, or have them start the server from the editor console with `ModelContextProtocol.StartServer`.
 5. Use the default local endpoint unless the user has configured another port/path: `http://127.0.0.1:8000/mcp`.
-6. Prefer Unreal's **Generate Client Config** action for Claude Code. The console alternative is `ModelContextProtocol.GenerateClientConfig ClaudeCode`. Inspect the generated file location; source engine builds may write it under the engine root rather than the project root.
-7. If the generated config is not in the project folder, register a local-scoped connection from the project root:
+6. Prefer a **local-scoped Claude Code registration** so the editor endpoint is not added to the shared repository configuration. First inspect the existing registration with `claude mcp get unreal-mcp`; if it is absent, show the command and obtain the user's approval before running it because it changes local Claude Code configuration:
    ```powershell
    claude mcp add --transport http unreal-mcp --scope local http://127.0.0.1:8000/mcp
    ```
-   Run this only if the server is not already configured. Do not use `--scope project` unless the user explicitly wants a shared, committed project configuration.
+7. Use Unreal's **Generate Client Config** action only if the user explicitly chooses a project-level configuration. The console alternative is `ModelContextProtocol.GenerateClientConfig ClaudeCode`. UE 5.8 documentation says this writes `.mcp.json` to the project root. Inspect the Output Log and file contents; do not stage or commit this machine-local endpoint unless the team explicitly decides to share it.
 8. Restart Claude Code or reload its MCP connections. Verify with `claude mcp get unreal-mcp` and `/mcp`. Never report a connection as successful based only on the registration command.
 
 ## Discovery and status
@@ -87,3 +86,8 @@ For every requested operation:
 ## Completion criteria
 
 A setup is **CONNECTED** only when Claude Code reports the server connected and at least one read-only discovery/inspection call returns data from the intended Unreal Editor instance. A workflow is **VERIFIED** only when the post-operation inspection confirms the requested state. Otherwise report **NOT CONNECTED**, **PARTIAL**, or **NOT VERIFIED** with evidence.
+
+
+## Next step
+
+After setup, run `/unreal-mcp status` to confirm the live connection. Before an editor change, use `/unreal-mcp inspect` to identify the intended project, level, target object, and available tool schema. Then involve the relevant Unreal domain specialist for the implementation decision.
