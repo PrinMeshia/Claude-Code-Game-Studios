@@ -69,6 +69,28 @@ export CCGS_FRAMEWORK_ROOT="$FRAMEWORK_ROOT"
 export CCGS_PROJECT_ROOT="$PROJECT_ROOT"
 export CCGS_PROJECT_ID="$PROJECT_ID"
 
+# A child project must be its own Git repository (or submodule root).
+# This prevents writes from landing in an enclosing repository by accident.
+if [ "$PROJECT_ID" != "." ]; then
+  if ! command -v git >/dev/null 2>&1; then
+    echo "launch-project: Git is required to verify the selected repository root." >&2
+    exit 6
+  fi
+  GIT_ROOT="$(git -C "$PROJECT_ROOT" rev-parse --show-toplevel 2>/dev/null || true)"
+  if [ -z "$GIT_ROOT" ]; then
+    echo "launch-project: selected project is not a Git repository: $PROJECT_ROOT" >&2
+    exit 6
+  fi
+  GIT_ROOT="$(cd -P "$GIT_ROOT" 2>/dev/null && pwd -P)"
+  if [ "$GIT_ROOT" != "$PROJECT_ROOT" ]; then
+    echo "launch-project: selected project is nested inside another Git repository." >&2
+    echo "  selected: $PROJECT_ROOT" >&2
+    echo "  git root: $GIT_ROOT" >&2
+    echo "Initialize it as a repository or configure it as a submodule." >&2
+    exit 6
+  fi
+fi
+
 if ! command -v claude >/dev/null 2>&1; then
   echo "launch-project: Claude Code CLI (claude) is not on PATH." >&2
   exit 127
@@ -76,7 +98,7 @@ fi
 
 # An agent can request a worktree through its frontmatter. Do not silently run
 # such an agent when the selected execution policy is direct-in-project.
-for agents_dir in "$FRAMEWORK_ROOT/.claude/agents" "$PROJECT_ROOT/.claude/agents"; do
+USER_CLAUDE_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"\nfor agents_dir in "$FRAMEWORK_ROOT/.claude/agents" "$PROJECT_ROOT/.claude/agents" "$USER_CLAUDE_DIR/agents"; do
   if [ -d "$agents_dir" ]; then
     WORKTREE_AGENTS="$(grep -R -n -E '^[[:space:]]*isolation:[[:space:]]*worktree([[:space:]]|$)' "$agents_dir" --include='*.md' 2>/dev/null || true)"
     if [ -n "$WORKTREE_AGENTS" ]; then
