@@ -40,9 +40,11 @@ foreach ($gitRoot in $knownRoots) {
 }
 
 # PATH is only a fallback; verify the runtime identity before using it.
-$pathBash = Get-Command 'bash.exe' -ErrorAction SilentlyContinue
-if ($pathBash -and $pathBash.Source) {
-    $candidates.Add($pathBash.Source)
+$pathBashes = Get-Command 'bash.exe' -All -ErrorAction SilentlyContinue
+foreach ($pathBash in $pathBashes) {
+    if ($pathBash -and $pathBash.Source) {
+        $candidates.Add($pathBash.Source)
+    }
 }
 
 $bashPath = $null
