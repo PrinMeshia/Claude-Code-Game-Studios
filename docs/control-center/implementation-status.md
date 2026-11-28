@@ -10,7 +10,9 @@
 - [x] Lanceur Claude Code : démarrage dans le projet sélectionné, ajout du framework via `--add-dir`, hooks fournis via `--settings` temporaire et chemins historiques raccordés par liens de répertoires.
 - [x] Contrôle de racine Git du projet et refus des projets imbriqués dans un dépôt parent.
 - [x] Garde anti-worktree : refus des options CLI `--worktree` / `-w` et des agents configurés `isolation: worktree` (framework, projet et configuration utilisateur).
-- [ ] Exécution des tests contractuels et validation réelle sur Fedora et Windows Git Bash.
+- [x] Workflow GitHub Actions ajouté pour exécuter les tests contractuels sur Ubuntu et Windows à chaque push sur cette branche.
+- [ ] Résultats CI : aucun run disponible/observé à ce stade.
+- [ ] Validation réelle sur Fedora et Windows Git Bash.
 - [ ] Vérifier les hooks chargés avec `/status` et les événements de session réels.
 - [x] Politique sans worktrees appliquée au lanceur (garde statique sur options et frontmatter).
 - [ ] Non-régression des sous-agents et vérification qu'aucune isolation indirecte ne crée de worktree.
