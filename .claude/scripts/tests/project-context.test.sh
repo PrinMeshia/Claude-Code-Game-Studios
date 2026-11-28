@@ -10,7 +10,7 @@ trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 pass() { printf 'PASS: %s\n' "$*"; }
 
-mkdir -p "$TMP/framework/.claude/scripts" "$TMP/framework/projects/covLab" "$TMP/framework/projects/other"
+mkdir -p "$TMP/framework/.claude/scripts" "$TMP/framework/projects/covLab" "$TMP/framework/projects/other" "$TMP/projects/covLab"
 : > "$TMP/framework/.claude/settings.json"
 : > "$TMP/framework/projects/covLab/project.yaml"
 : > "$TMP/framework/projects/other/project.yaml"
