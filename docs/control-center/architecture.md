@@ -34,11 +34,11 @@ L'interface ne doit pas inventer d'état lorsque la source est indisponible : af
 
 ## Contexte multi-projets
 
-Le workspace peut contenir plusieurs projets indépendants sous projects/, mais la branche de référence documente que les hooks, skills et le résolveur de configuration supposent encore un projet unique à la racine.
+Le workspace peut contenir plusieurs projets indépendants sous projects/, mais le runtime multi-projets est explicitement incomplet. Les hooks inspectés choisissent encore leur racine à partir du répertoire courant, puis de CLAUDE_PROJECT_DIR, avec un fallback vers l'emplacement du script. Le résolveur YAML suit cette même logique. Ajouter un dossier projects/covLab ne redirige donc pas les workflows de façon sûre.
 
 Avant d'activer le sélecteur multi-projets, implémenter et tester un contexte explicite : identifiant de projet, chemin absolu canonique, racine Git, racine du framework, project.yaml et project.local.yaml, moteur/version et fichier .uproject associé si Unreal.
 
-Chaque invocation de workflow doit recevoir le contexte sélectionné. Ne pas s'appuyer uniquement sur le répertoire courant implicite.
+Chaque invocation de workflow doit recevoir le contexte sélectionné. Ne pas s'appuyer uniquement sur le répertoire courant implicite. Voir [l'audit d'exécution directe](direct-execution-audit.md) pour les constats et critères d'acceptation.
 
 ## Politique de travail direct (sans worktrees)
 
@@ -51,7 +51,7 @@ Objectif utilisateur : les agents travaillent dans le répertoire local réel du
 5. Les opérations destructives, changements de schéma et décisions architecturales restent soumises aux validations configurées.
 6. Toute erreur de résolution du projet bloque l'écriture ; aucun fallback silencieux vers la racine du framework.
 
-Ne pas simplement supprimer .worktreeinclude ou worktree.baseRef : rechercher et neutraliser les points d'entrée qui créent réellement des worktrees, puis tester qu'aucune invocation ne change de répertoire.
+Ne pas simplement supprimer .worktreeinclude ou worktree.baseRef : l'audit statique montre que ces éléments ne prouvent pas à eux seuls la création systématique de worktrees. Il faut d'abord auditer les points d'entrée Claude Code et les options d'isolation des agents, puis garantir et tester qu'aucune invocation du Control Center ne bascule vers un worktree.
 
 ## Sécurité et gouvernance
 
