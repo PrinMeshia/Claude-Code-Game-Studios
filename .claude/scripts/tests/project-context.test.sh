@@ -2,7 +2,7 @@
 # Portable contract tests for project-context.sh (Bash 3.2+).
 set -eu
 
-SOURCE_ROOT="$(cd "$(dirname "$0")/../.." && pwd -P)"
+SOURCE_ROOT="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 RESOLVER="$SOURCE_ROOT/.claude/scripts/project-context.sh"
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/ccgs-context-test.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT HUP INT TERM
