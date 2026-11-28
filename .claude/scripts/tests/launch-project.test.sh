@@ -23,6 +23,10 @@ git -C "$FRAMEWORK/projects/covLab" init -q
 git -C "$FRAMEWORK/projects/occupied" init -q
 cp "$SOURCE_ROOT/.claude/scripts/project-context.sh" "$FRAMEWORK/.claude/scripts/project-context.sh"
 cp "$SOURCE_ROOT/.claude/scripts/launch-project.sh" "$FRAMEWORK/.claude/scripts/launch-project.sh"
+printf '# shared hook fixture\n' > "$FRAMEWORK/.claude/hooks/shared-hook.sh"
+mkdir -p "$FRAMEWORK/projects/covLab/.claude"
+cp -a "$FRAMEWORK/.claude/hooks" "$FRAMEWORK/projects/covLab/.claude/hooks"
+cp -a "$FRAMEWORK/.claude/scripts" "$FRAMEWORK/projects/covLab/.claude/scripts"
 
 cat > "$TMP/bin/claude" <<'CLAUDE'
 #!/usr/bin/env bash
@@ -73,6 +77,11 @@ if printf '%s\n' "$STATUS" | grep -F '?? .claude/' >/dev/null; then
   fail "generated runtime links must not appear as untracked files"
 fi
 pass "selected project is the primary working directory and shared runtime is linked"
+BACKUP_DIR="$(git -C "$FRAMEWORK/projects/covLab" rev-parse --absolute-git-dir)/ccgs-runtime-backups"
+[ -d "$BACKUP_DIR" ] || fail "exact duplicate backups were not preserved in Git metadata"
+[ -f "$BACKUP_DIR"/hooks-*/shared-hook.sh ] || fail "original hooks copy was not backed up"
+[ -f "$BACKUP_DIR"/scripts-*/launch-project.sh ] || fail "original scripts copy was not backed up"
+pass "byte-identical project copies are adopted with recoverable backups"
 
 if (
   cd "$FRAMEWORK"
