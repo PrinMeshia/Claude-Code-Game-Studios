@@ -56,8 +56,12 @@ foreach ($candidate in $candidates) {
 
     # Git Bash reports MINGW*/MSYS*; WSL reports Linux and is rejected.
     try {
-        $runtime = (& $candidate -lc 'uname -s' 2>$null | Select-Object -First 1)
-        if ($LASTEXITCODE -eq 0 -and $runtime -match '^(MINGW|MSYS|CYGWIN)') {
+        # Capture the native process exit code before running any PowerShell pipeline.
+        # Piping the native command directly to Select-Object can change $LASTEXITCODE.
+        $runtimeOutput = & $candidate -lc 'uname -s' 2>$null
+        $runtimeExitCode = $LASTEXITCODE
+        $runtime = $runtimeOutput | Select-Object -First 1
+        if ($runtimeExitCode -eq 0 -and $runtime -match '^(MINGW|MSYS|CYGWIN)') {
             $bashPath = $candidate
             break
         }
