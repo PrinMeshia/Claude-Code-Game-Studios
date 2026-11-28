@@ -28,6 +28,14 @@ mkdir -p "$FRAMEWORK/projects/covLab/.claude"
 cp -a "$FRAMEWORK/.claude/hooks" "$FRAMEWORK/projects/covLab/.claude/hooks"
 cp -a "$FRAMEWORK/.claude/scripts" "$FRAMEWORK/projects/covLab/.claude/scripts"
 
+# Simulate a project that copied the runtime before the framework's latest
+# launcher update. The historical copy must still be safely adoptable.
+git -C "$FRAMEWORK" config user.name "CCGS Tests"
+git -C "$FRAMEWORK" config user.email "ccgs-tests@example.invalid"
+git -C "$FRAMEWORK" add .claude project.yaml
+git -C "$FRAMEWORK" commit -qm "test fixture: baseline shared runtime"
+printf '\n# simulated later framework update\n' >> "$FRAMEWORK/.claude/scripts/launch-project.sh"
+
 cat > "$TMP/bin/claude" <<'CLAUDE'
 #!/usr/bin/env bash
 {
