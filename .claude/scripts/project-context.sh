@@ -55,7 +55,19 @@ ccgs_context_resolve() {
   else
     case "$selector" in
       /*|[A-Za-z]:[\\/]*) selected_root="$selector" ;;
-      *) selected_root="$workspace_root/$selector" ;;
+      projects/*)
+        selected_id="${selector#projects/}"
+        case "$selected_id" in
+          ""|.|..|*/*) _ccgs_context_error "relative project path must name one direct child of projects/: $selector"; return 1 ;;
+        esac
+        selected_root="$workspace_root/projects/$selected_id"
+        ;;
+      *)
+        case "$selector" in
+          ""|.|..|*/*) _ccgs_context_error "project selector must be an id, projects/<id>, or an absolute path: $selector"; return 1 ;;
+        esac
+        selected_root="$workspace_root/projects/$selector"
+        ;;
     esac
     selected_root="$(_ccgs_context_physical_dir "$selected_root")" || {
       _ccgs_context_error "selected project directory does not exist: $selector"
