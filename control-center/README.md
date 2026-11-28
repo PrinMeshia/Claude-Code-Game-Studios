@@ -34,7 +34,7 @@ Ou depuis l'invite de commandes (CMD) :
 .claude\scripts\launch-project.cmd covLab
 ```
 
-Les deux points d'entrée Windows délèguent au même lanceur Bash. **Git for Windows (Git Bash) est donc requis** ; cela évite de maintenir deux implémentations divergentes des contrôles de sécurité.
+Les deux points d'entrée Windows délèguent au même lanceur Bash. **Git for Windows (Git Bash) est requis, mais pas WSL.** Le wrapper PowerShell recherche d'abord Git Bash dans l'installation de Git for Windows et vérifie son identité (`MINGW`/`MSYS`) ; il ignore le `bash.exe` WSL (`Linux`) même si celui-ci apparaît plus tôt dans le `PATH`.
 
 Il démarre Claude Code avec `projects/covLab` comme répertoire de travail principal, ajoute le framework comme répertoire de ressources et fournit les hooks CCGS via une configuration temporaire de session. Les chemins historiques `.claude/hooks` et `.claude/scripts` sont raccordés au framework par liens de répertoire dans le projet.
 
