@@ -1,8 +1,8 @@
 # Contract test for the Windows launcher entrypoints.
 $ErrorActionPreference = 'Stop'
-$root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
-$entrypoint = Join-Path $root 'launch-project.ps1'
-$cmdEntrypoint = Join-Path $root 'launch-project.cmd'
+$scriptsDir = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$entrypoint = Join-Path $scriptsDir 'launch-project.ps1'
+$cmdEntrypoint = Join-Path $scriptsDir 'launch-project.cmd'
 
 if (-not (Test-Path -LiteralPath $entrypoint -PathType Leaf)) {
     throw "Missing PowerShell entrypoint: $entrypoint"
@@ -11,10 +11,11 @@ if (-not (Test-Path -LiteralPath $cmdEntrypoint -PathType Leaf)) {
     throw "Missing CMD entrypoint: $cmdEntrypoint"
 }
 
+$tokens = $null
 $parseErrors = $null
 [System.Management.Automation.Language.Parser]::ParseFile(
     $entrypoint,
-    [ref] $null,
+    [ref] $tokens,
     [ref] $parseErrors
 ) | Out-Null
 if ($parseErrors) {
