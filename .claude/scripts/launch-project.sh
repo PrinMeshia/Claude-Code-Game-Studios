@@ -111,27 +111,47 @@ for agents_dir in "$FRAMEWORK_ROOT/.claude/agents" "$PROJECT_ROOT/.claude/agents
   fi
 done
 
-# A project at the framework root already owns the real CCGS .claude tree.
-# Child projects receive only links to the shared hooks/scripts directories.
-ensure_shared_directory() {
-  local source_dir="$1" target_dir="$2" label="$3" target_parent
+# Child projects reuse the framework's hooks/scripts. Existing directories are
+# adopted only when their complete file trees are byte-identical to the shared
+# source. The original copies are moved into the repository's private Git dir as
+# a rollback/recovery backup before a link is created.
+directory_is_exact_copy() {
+  local source_dir="$1" target_dir="$2"
+  [ -d "$source_dir" ] && [ -d "$target_dir" ] || return 1
+
+  # Never auto-adopt trees containing symlinks: their targets may be external
+  # project data even when a recursive comparison appears identical.
+  if find "$source_dir" "$target_dir" -type l -print -quit 2>/dev/null | grep -q .; then
+    return 1
+  fi
+
+  diff -qr "$source_dir" "$target_dir" >/dev/null 2>&1
+}
+
+preflight_shared_directory() {
+  local source_dir="$1" target_dir="$2" label="$3" actual expected
   if [ -d "$target_dir" ]; then
-    local actual
     actual="$(cd -P "$target_dir" 2>/dev/null && pwd -P)" || actual=""
-    local expected
     expected="$(cd -P "$source_dir" 2>/dev/null && pwd -P)" || expected=""
     if [ -n "$actual" ] && [ "$actual" = "$expected" ]; then
       return 0
     fi
-    echo "launch-project: refusing to replace existing $label directory: $target_dir" >&2
-    echo "Existing project-owned content is preserved. Integrate it deliberately before retrying." >&2
+    if directory_is_exact_copy "$source_dir" "$target_dir"; then
+      return 2
+    fi
+    echo "launch-project: refusing to replace non-identical $label directory: $target_dir" >&2
+    echo "Project-specific content or symlinks may be present; no files were changed." >&2
     return 1
   fi
   if [ -e "$target_dir" ]; then
     echo "launch-project: refusing to replace existing $label path: $target_dir" >&2
     return 1
   fi
+  return 0
+}
 
+ensure_shared_directory() {
+  local source_dir="$1" target_dir="$2" label="$3" target_parent
   target_parent="$(dirname "$target_dir")"
   mkdir -p "$target_parent"
   if ln -s "$source_dir" "$target_dir" 2>/dev/null; then
@@ -154,6 +174,34 @@ ensure_shared_directory() {
   return 1
 }
 
+adopt_exact_copy() {
+  local source_dir="$1" target_dir="$2" label="$3"
+  local git_dir backup_root backup_path
+  git_dir="$(git -C "$PROJECT_ROOT" rev-parse --absolute-git-dir 2>/dev/null)" || {
+    echo "launch-project: cannot resolve Git metadata directory for safe $label adoption." >&2
+    return 1
+  }
+  backup_root="$git_dir/ccgs-runtime-backups"
+  mkdir -p "$backup_root"
+  backup_path="$backup_root/$label-$(date +%Y%m%d%H%M%S)-$"
+  if [ -e "$backup_path" ]; then
+    echo "launch-project: backup destination already exists: $backup_path" >&2
+    return 1
+  fi
+
+  if ! mv "$target_dir" "$backup_path"; then
+    echo "launch-project: could not preserve existing $label copy at $backup_path" >&2
+    return 1
+  fi
+  if ! ensure_shared_directory "$source_dir" "$target_dir" "$label"; then
+    mv "$backup_path" "$target_dir" || {
+      echo "CRITICAL: failed to restore $label backup from $backup_path" >&2
+    }
+    return 1
+  fi
+  echo "launch-project: adopted identical $label copy; original preserved at $backup_path" >&2
+}
+
 SETTINGS_FILE=""
 cleanup() {
   if [ -n "$SETTINGS_FILE" ] && [ -f "$SETTINGS_FILE" ]; then
@@ -164,8 +212,39 @@ trap cleanup EXIT HUP INT TERM
 
 if [ "$PROJECT_ID" != "." ]; then
   mkdir -p "$PROJECT_ROOT/.claude"
-  ensure_shared_directory "$FRAMEWORK_ROOT/.claude/hooks" "$PROJECT_ROOT/.claude/hooks" "hooks" || exit 4
-  ensure_shared_directory "$FRAMEWORK_ROOT/.claude/scripts" "$PROJECT_ROOT/.claude/scripts" "scripts" || exit 4
+
+  # Preflight both directories before moving either one. Return code 2 means an
+  # exact duplicate can be adopted; 0 means absent/already linked; 1 is a hard
+  # conflict and leaves the project tree untouched.
+  HOOKS_STATE=0
+  if preflight_shared_directory "$FRAMEWORK_ROOT/.claude/hooks" "$PROJECT_ROOT/.claude/hooks" "hooks"; then
+    :
+  else
+    status=$?
+    [ "$status" -eq 2 ] || exit 4
+    HOOKS_STATE=2
+  fi
+
+  SCRIPTS_STATE=0
+  if preflight_shared_directory "$FRAMEWORK_ROOT/.claude/scripts" "$PROJECT_ROOT/.claude/scripts" "scripts"; then
+    :
+  else
+    status=$?
+    [ "$status" -eq 2 ] || exit 4
+    SCRIPTS_STATE=2
+  fi
+
+  if [ "$HOOKS_STATE" -eq 2 ]; then
+    adopt_exact_copy "$FRAMEWORK_ROOT/.claude/hooks" "$PROJECT_ROOT/.claude/hooks" "hooks" || exit 4
+  else
+    ensure_shared_directory "$FRAMEWORK_ROOT/.claude/hooks" "$PROJECT_ROOT/.claude/hooks" "hooks" || exit 4
+  fi
+
+  if [ "$SCRIPTS_STATE" -eq 2 ]; then
+    adopt_exact_copy "$FRAMEWORK_ROOT/.claude/scripts" "$PROJECT_ROOT/.claude/scripts" "scripts" || exit 4
+  else
+    ensure_shared_directory "$FRAMEWORK_ROOT/.claude/scripts" "$PROJECT_ROOT/.claude/scripts" "scripts" || exit 4
+  fi
 
   # Keep generated links local to this checkout. Never add them to the project's
   # tracked .gitignore: they are machine-specific pointers to the framework.
