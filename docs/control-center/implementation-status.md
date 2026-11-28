@@ -7,8 +7,13 @@
 - [x] Aucune donnée fictive injectée.
 - [x] Architecture cible et sources de vérité documentées.
 - [x] Première brique du contexte multi-projets : résolveur explicite framework/projet + tests contractuels écrits (exécution locale encore à faire).
-- [ ] Propagation du contexte dans les hooks, skills, commandes et lanceur Claude Code (runtime encore mono-projet tant que cette intégration n'est pas terminée).
-- [ ] Politique sans worktrees appliquée et testée (audit initial effectué ; points d'entrée de lancement/isolation à vérifier).
+- [x] Lanceur Claude Code : démarrage dans le projet sélectionné, ajout du framework via `--add-dir`, hooks fournis via `--settings` temporaire et chemins historiques raccordés par liens de répertoires.
+- [x] Contrôle de racine Git du projet et refus des projets imbriqués dans un dépôt parent.
+- [x] Garde anti-worktree : refus des options CLI `--worktree` / `-w` et des agents configurés `isolation: worktree` (framework, projet et configuration utilisateur).
+- [ ] Exécution des tests contractuels et validation réelle sur Fedora et Windows Git Bash.
+- [ ] Vérifier les hooks chargés avec `/status` et les événements de session réels.
+- [x] Politique sans worktrees appliquée au lanceur (garde statique sur options et frontmatter).
+- [ ] Non-régression des sous-agents et vérification qu'aucune isolation indirecte ne crée de worktree.
 - [ ] Adaptateur local.
 - [ ] Sessions, agents, journaux, validations et Git raccordés.
 - [ ] État Unreal MCP raccordé.
@@ -30,9 +35,10 @@
 - [x] Compatibilité du mode projet historique à la racine.
 - [x] Tests contractuels ajoutés pour sélection, ambiguïté, traversal, symlink et mode legacy.
 - [ ] Exécution des tests sur Fedora et Windows Git Bash.
-- [ ] Intégration du résolveur dans les hooks et le lanceur.
-- [ ] Vérification de la racine Git et du contexte moteur.
+- [x] Intégration du résolveur dans le lanceur.
+- [x] Vérification de la racine Git du dépôt sélectionné.
+- [ ] Vérification du contexte moteur et des chemins Unreal dans covLab.
 
 ## Limites de validation
 
-La prévisualisation HTML peut être ouverte directement dans un navigateur. Aucun test d'intégration, lancement Claude Code, test Unreal ou test Fedora/Windows n'a été exécuté dans le cadre de cet incrément.
+La prévisualisation HTML peut être ouverte directement dans un navigateur. Les tests contractuels sont présents mais n'ont pas encore été exécutés dans cet environnement. Aucun lancement réel de Claude Code, test Unreal ou test Fedora/Windows n'a été effectué. La politique de travail direct ne sérialise pas encore les écritures concurrentes sur des fichiers qui se chevauchent.
