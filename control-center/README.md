@@ -22,6 +22,20 @@ Le lanceur expérimental est disponible depuis la racine du framework :
 bash .claude/scripts/launch-project.sh covLab
 ```
 
+Sous Windows, depuis PowerShell :
+
+```powershell
+.\\.claude\\scripts\\launch-project.ps1 covLab
+```
+
+Ou depuis l'invite de commandes (CMD) :
+
+```bat
+.claude\\scripts\\launch-project.cmd covLab
+```
+
+Les deux points d'entrée Windows délèguent au même lanceur Bash. **Git for Windows (Git Bash) est donc requis** ; cela évite de maintenir deux implémentations divergentes des contrôles de sécurité.
+
 Il démarre Claude Code avec `projects/covLab` comme répertoire de travail principal, ajoute le framework comme répertoire de ressources et fournit les hooks CCGS via une configuration temporaire de session. Les chemins historiques `.claude/hooks` et `.claude/scripts` sont raccordés au framework par liens de répertoire dans le projet.
 
 Préconditions et garde-fous :
