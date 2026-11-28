@@ -40,6 +40,16 @@ Une première brique est maintenant présente dans `.claude/scripts/project-cont
 
 Chaque invocation de workflow doit recevoir le contexte sélectionné. Ne pas s'appuyer uniquement sur le répertoire courant implicite. Voir [l'audit d'exécution directe](direct-execution-audit.md) pour les constats et critères d'acceptation.
 
+## Contraintes de chargement Claude Code (vérifiées dans la documentation officielle)
+
+Le lancement depuis la racine du projet sélectionné est nécessaire pour que ce répertoire soit le working directory principal. Le framework partagé peut être ajouté avec `claude --add-dir <framework-root>` : Claude Code charge alors les skills, commandes et subagents de ce répertoire additionnel.
+
+Attention : `--add-dir` ne charge pas les hooks ni les paramètres généraux de `.claude/settings.json` depuis le répertoire ajouté. Les hooks et les autres clés de settings sont lus depuis le `.claude/` du working directory courant, sans remontée vers un parent. Les fichiers `CLAUDE.md` et `.claude/rules/` du répertoire additionnel nécessitent en plus `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1`.
+
+Conséquence d'architecture : le futur lanceur doit démarrer Claude Code depuis la racine projet, ajouter la racine framework pour les skills/commands/agents, activer explicitement le chargement des instructions additionnelles, et fournir au projet une configuration locale de hooks qui délègue vers les scripts partagés du framework. Il ne faut pas compter sur `--add-dir` pour activer les hooks du framework. Cette configuration locale doit être installée/actualisée sans écraser les réglages propres au projet.
+
+Références : [Claude Code — skills depuis un répertoire additionnel](https://code.claude.com/docs/en/skills#load-skills-from-a-directory-outside-the-project) ; [Claude Code — working directories, additional directories et chargement des hooks](https://code.claude.com/docs/en/permissions#additional-directories-grant-file-access-not-configuration).
+
 ## Politique de travail direct (sans worktrees)
 
 Objectif utilisateur : les agents travaillent dans le répertoire local réel du projet, pas dans des Git worktrees.
