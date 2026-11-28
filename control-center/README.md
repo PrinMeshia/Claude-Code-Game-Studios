@@ -25,13 +25,13 @@ bash .claude/scripts/launch-project.sh covLab
 Sous Windows, depuis PowerShell :
 
 ```powershell
-.\\.claude\\scripts\\launch-project.ps1 covLab
+.\.claude\scripts\launch-project.ps1 covLab
 ```
 
 Ou depuis l'invite de commandes (CMD) :
 
 ```bat
-.claude\\scripts\\launch-project.cmd covLab
+.claude\scripts\launch-project.cmd covLab
 ```
 
 Les deux points d'entrée Windows délèguent au même lanceur Bash. **Git for Windows (Git Bash) est donc requis** ; cela évite de maintenir deux implémentations divergentes des contrôles de sécurité.
