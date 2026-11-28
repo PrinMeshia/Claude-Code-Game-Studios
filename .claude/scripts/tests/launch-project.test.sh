@@ -62,6 +62,7 @@ grep -F '"deny"' "$CCGS_TEST_LOG" >/dev/null || fail "framework permission deny 
 if grep -F '"defaultMode"' "$CCGS_TEST_LOG" >/dev/null; then fail "framework default permission mode must not override project settings"; fi
 [ -d "$FRAMEWORK/projects/covLab/.claude/hooks" ] || fail "project hooks link is missing"
 [ -d "$FRAMEWORK/projects/covLab/.claude/scripts" ] || fail "project scripts link is missing"
+[ -z "$(git -C "$FRAMEWORK/projects/covLab" status --short)" ] || fail "generated runtime links must not appear as untracked files"
 pass "selected project is the primary working directory and shared runtime is linked"
 
 if (
