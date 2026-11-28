@@ -62,7 +62,15 @@ grep -F '"deny"' "$CCGS_TEST_LOG" >/dev/null || fail "framework permission deny 
 if grep -F '"defaultMode"' "$CCGS_TEST_LOG" >/dev/null; then fail "framework default permission mode must not override project settings"; fi
 [ -d "$FRAMEWORK/projects/covLab/.claude/hooks" ] || fail "project hooks link is missing"
 [ -d "$FRAMEWORK/projects/covLab/.claude/scripts" ] || fail "project scripts link is missing"
-[ -z "$(git -C "$FRAMEWORK/projects/covLab" status --short)" ] || fail "generated runtime links must not appear as untracked files"
+STATUS="$(git -C "$FRAMEWORK/projects/covLab" status --short)"
+if [ -n "$STATUS" ]; then
+  printf 'Unexpected git status:\n%s\n' "$STATUS" >&2
+  EXCLUDE="$(git -C "$FRAMEWORK/projects/covLab" rev-parse --git-path info/exclude)"
+  printf 'Exclude file (%s):\n' "$EXCLUDE" >&2
+  cat "$FRAMEWORK/projects/covLab/$EXCLUDE" 2>/dev/null || cat "$EXCLUDE" >&2
+  git -C "$FRAMEWORK/projects/covLab" check-ignore -v .claude/hooks .claude/scripts >&2 || true
+  fail "generated runtime links must not appear as untracked files"
+fi
 pass "selected project is the primary working directory and shared runtime is linked"
 
 if (
