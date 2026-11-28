@@ -18,6 +18,9 @@ JSON
 : > "$FRAMEWORK/project.yaml"
 : > "$FRAMEWORK/projects/covLab/project.yaml"
 : > "$FRAMEWORK/projects/occupied/project.yaml"
+git -C "$FRAMEWORK" init -q
+git -C "$FRAMEWORK/projects/covLab" init -q
+git -C "$FRAMEWORK/projects/occupied" init -q
 cp "$SOURCE_ROOT/.claude/scripts/project-context.sh" "$FRAMEWORK/.claude/scripts/project-context.sh"
 cp "$SOURCE_ROOT/.claude/scripts/launch-project.sh" "$FRAMEWORK/.claude/scripts/launch-project.sh"
 
