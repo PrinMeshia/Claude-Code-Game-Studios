@@ -170,6 +170,7 @@ if [ "$PROJECT_ID" != "." ]; then
   # Keep generated links local to this checkout. Never add them to the project's
   # tracked .gitignore: they are machine-specific pointers to the framework.
   EXCLUDE_FILE="$(git -C "$PROJECT_ROOT" rev-parse --git-path info/exclude)"
+  case "$EXCLUDE_FILE" in /*|[A-Za-z]:[\\/]*) ;; *) EXCLUDE_FILE="$PROJECT_ROOT/$EXCLUDE_FILE" ;; esac
   mkdir -p "$(dirname "$EXCLUDE_FILE")"
   touch "$EXCLUDE_FILE"
   if ! grep -F -x -q '/.claude/hooks' "$EXCLUDE_FILE"; then
