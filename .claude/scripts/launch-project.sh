@@ -98,7 +98,8 @@ fi
 
 # An agent can request a worktree through its frontmatter. Do not silently run
 # such an agent when the selected execution policy is direct-in-project.
-USER_CLAUDE_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"\nfor agents_dir in "$FRAMEWORK_ROOT/.claude/agents" "$PROJECT_ROOT/.claude/agents" "$USER_CLAUDE_DIR/agents"; do
+USER_CLAUDE_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+for agents_dir in "$FRAMEWORK_ROOT/.claude/agents" "$PROJECT_ROOT/.claude/agents" "$USER_CLAUDE_DIR/agents"; do
   if [ -d "$agents_dir" ]; then
     WORKTREE_AGENTS="$(grep -R -n -E '^[[:space:]]*isolation:[[:space:]]*worktree([[:space:]]|$)' "$agents_dir" --include='*.md' 2>/dev/null || true)"
     if [ -n "$WORKTREE_AGENTS" ]; then
