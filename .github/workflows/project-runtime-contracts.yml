@@ -1,0 +1,40 @@
+name: Project runtime contracts
+
+on:
+  push:
+    branches:
+      - feat/control-center-foundation
+    paths:
+      - ".claude/scripts/project-context.sh"
+      - ".claude/scripts/launch-project.sh"
+      - ".claude/scripts/tests/**"
+      - ".github/workflows/project-runtime-contracts.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-tests:
+    name: Contract tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Test project context resolver
+        run: bash .claude/scripts/tests/project-context.test.sh
+      - name: Test direct project launcher
+        run: bash .claude/scripts/tests/launch-project.test.sh
