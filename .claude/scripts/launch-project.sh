@@ -115,17 +115,41 @@ done
 # adopted only when their complete file trees are byte-identical to the shared
 # source. The original copies are moved into the repository's private Git dir as
 # a rollback/recovery backup before a link is created.
+directory_has_no_symlinks() {
+  local source_dir="$1" target_dir="$2"
+  ! find "$source_dir" "$target_dir" -type l -print -quit 2>/dev/null | grep -q .
+}
+
 directory_is_exact_copy() {
   local source_dir="$1" target_dir="$2"
   [ -d "$source_dir" ] && [ -d "$target_dir" ] || return 1
-
-  # Never auto-adopt trees containing symlinks: their targets may be external
-  # project data even when a recursive comparison appears identical.
-  if find "$source_dir" "$target_dir" -type l -print -quit 2>/dev/null | grep -q .; then
-    return 1
-  fi
-
+  directory_has_no_symlinks "$source_dir" "$target_dir" || return 1
   diff -qr "$source_dir" "$target_dir" >/dev/null 2>&1
+}
+
+directory_matches_framework_history() {
+  local target_dir="$1" label="$2" revision temp_dir archived_dir
+  [ -d "$target_dir" ] || return 1
+  directory_has_no_symlinks "$FRAMEWORK_ROOT/.claude/$label" "$target_dir" || return 1
+  temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/ccgs-history-check.XXXXXX")" || return 1
+
+  # The user may have copied the runtime before a framework update. Accept an
+  # exact historical framework snapshot, but never a hand-edited/unknown tree.
+  while IFS= read -r revision; do
+    [ -n "$revision" ] || continue
+    rm -rf "$temp_dir/archive"
+    mkdir -p "$temp_dir/archive"
+    if git -C "$FRAMEWORK_ROOT" archive "$revision" ".claude/$label" 2>/dev/null | tar -x -C "$temp_dir/archive" 2>/dev/null; then
+      archived_dir="$temp_dir/archive/.claude/$label"
+      if [ -d "$archived_dir" ] && diff -qr "$archived_dir" "$target_dir" >/dev/null 2>&1; then
+        rm -rf "$temp_dir"
+        return 0
+      fi
+    fi
+  done < <(git -C "$FRAMEWORK_ROOT" rev-list --max-count=30 HEAD -- ".claude/$label" 2>/dev/null)
+
+  rm -rf "$temp_dir"
+  return 1
 }
 
 preflight_shared_directory() {
@@ -137,6 +161,9 @@ preflight_shared_directory() {
       return 0
     fi
     if directory_is_exact_copy "$source_dir" "$target_dir"; then
+      return 2
+    fi
+    if directory_matches_framework_history "$target_dir" "$label"; then
       return 2
     fi
     echo "launch-project: refusing to replace non-identical $label directory: $target_dir" >&2
