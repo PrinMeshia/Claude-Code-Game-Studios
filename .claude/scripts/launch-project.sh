@@ -190,8 +190,16 @@ with open(source, "r", encoding="utf-8") as handle:
 hooks = settings.get("hooks")
 if not isinstance(hooks, dict) or not hooks:
     raise SystemExit("framework settings contain no hook definitions")
+# Keep the framework's safety allow/deny rules without overriding the selected
+# project's default permission mode or other project-specific settings.
+permissions = settings.get("permissions", {})
+session_settings = {"hooks": hooks}
+if isinstance(permissions, dict):
+    selected = {key: permissions[key] for key in ("allow", "deny", "ask") if key in permissions}
+    if selected:
+        session_settings["permissions"] = selected
 with open(target, "w", encoding="utf-8") as handle:
-    json.dump({"hooks": hooks}, handle, ensure_ascii=False, indent=2)
+    json.dump(session_settings, handle, ensure_ascii=False, indent=2)
     handle.write("\n")
 PY
   then
