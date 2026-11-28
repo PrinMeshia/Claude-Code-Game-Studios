@@ -14,6 +14,25 @@ Cette livraison est volontairement une coquille d'interface sans backend :
 
 Ouvrir directement index.html dans un navigateur. Aucun build ni dépendance npm n'est requis pour cette première prévisualisation.
 
+## Lancer Claude Code sur un projet existant
+
+Le lanceur expérimental est disponible depuis la racine du framework :
+
+```bash
+bash .claude/scripts/launch-project.sh covLab
+```
+
+Il démarre Claude Code avec `projects/covLab` comme répertoire de travail principal, ajoute le framework comme répertoire de ressources et fournit les hooks CCGS via une configuration temporaire de session. Les chemins historiques `.claude/hooks` et `.claude/scripts` sont raccordés au framework par liens de répertoire dans le projet.
+
+Préconditions et garde-fous :
+- `projects/covLab/project.yaml` doit exister.
+- `projects/covLab` doit être la racine de son propre dépôt Git ou d'un submodule.
+- Le système de fichiers doit permettre les liens symboliques ou jonctions de répertoire.
+- Les répertoires projet `.claude/hooks` et `.claude/scripts` existants ne sont jamais remplacés : en cas de conflit, le lanceur s'arrête.
+- Les options `--worktree` / `-w` et les agents déclarant `isolation: worktree` sont refusés.
+
+Les tests contractuels sont écrits, mais cette intégration n'a pas encore été exécutée sur Fedora ou Windows Git Bash. Après lancement, vérifier `/status` et les événements de hooks avant toute tâche qui modifie le projet.
+
 ## À réaliser avant utilisation opérationnelle
 
 1. Adaptateur local sécurisé entre l'interface et les mécanismes existants.
