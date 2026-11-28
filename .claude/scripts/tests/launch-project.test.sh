@@ -112,7 +112,7 @@ pass "worktree-isolated agent frontmatter blocks launch"
   cd "$FRAMEWORK"
   bash .claude/scripts/launch-project.sh
 ) || fail "legacy root launch should remain available"
-grep -F "cwd=$FRAMEWORK" "$CCGS_TEST_LOG" >/dev/null || fail "legacy mode did not keep framework root as cwd"
+grep -F "cwd=$EXPECTED_FRAMEWORK" "$CCGS_TEST_LOG" >/dev/null || fail "legacy mode did not keep framework root as cwd"
 pass "legacy single-project launch remains available"
 
 printf '\nAll launcher contract tests passed.\n'
