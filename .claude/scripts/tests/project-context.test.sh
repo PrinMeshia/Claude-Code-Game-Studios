@@ -19,7 +19,7 @@ cp "$RESOLVER" "$TMP/framework/.claude/scripts/project-context.sh"
 OUT="$(bash "$TMP/framework/.claude/scripts/project-context.sh" covLab)" || fail "explicit project id should resolve"
 printf '%s\n' "$OUT" | grep -F "project_id=covLab" >/dev/null || fail "project id not returned"
 EXPECTED_ROOT="$(cd -P "$TMP/framework/projects/covLab" && pwd -P)"
-printf '%s\\n' "$OUT" | grep -F "project_root=$EXPECTED_ROOT" >/dev/null || fail "project root not canonical"
+printf '%s\n' "$OUT" | grep -F "project_root=$EXPECTED_ROOT" >/dev/null || fail "project root not canonical"
 pass "explicit project id resolves"
 
 OUT="$(bash "$TMP/framework/.claude/scripts/project-context.sh" projects/covLab)" || fail "projects/<id> path should resolve"
