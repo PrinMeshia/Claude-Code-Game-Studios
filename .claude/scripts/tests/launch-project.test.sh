@@ -13,7 +13,7 @@ FRAMEWORK="$TMP/framework"
 mkdir -p "$FRAMEWORK/.claude/scripts" "$FRAMEWORK/.claude/hooks" "$FRAMEWORK/.claude/agents" "$FRAMEWORK/projects/covLab" "$FRAMEWORK/projects/occupied" "$TMP/bin"
 : > "$FRAMEWORK/.claude/settings.json"
 cat > "$FRAMEWORK/.claude/settings.json" <<'JSON'
-{"hooks":{"SessionStart":[{"hooks":[{"type":"command","command":"echo test"}]}]}}
+{"hooks":{"SessionStart":[{"hooks":[{"type":"command","command":"echo test"}]}]},"permissions":{"defaultMode":"default","deny":["Bash(rm -rf *)"]}}
 JSON
 : > "$FRAMEWORK/project.yaml"
 : > "$FRAMEWORK/projects/covLab/project.yaml"
@@ -58,6 +58,8 @@ grep -F "cwd=$FRAMEWORK/projects/covLab" "$CCGS_TEST_LOG" >/dev/null || fail "Cl
 grep -F "id=covLab" "$CCGS_TEST_LOG" >/dev/null || fail "project context was not exported"
 grep -F "arg=$FRAMEWORK" "$CCGS_TEST_LOG" >/dev/null || fail "framework was not added as a resource directory"
 grep -F '"hooks"' "$CCGS_TEST_LOG" >/dev/null || fail "session hook settings were not passed"
+grep -F '"deny"' "$CCGS_TEST_LOG" >/dev/null || fail "framework permission deny rules were not passed"
+if grep -F '"defaultMode"' "$CCGS_TEST_LOG" >/dev/null; then fail "framework default permission mode must not override project settings"; fi
 [ -d "$FRAMEWORK/projects/covLab/.claude/hooks" ] || fail "project hooks link is missing"
 [ -d "$FRAMEWORK/projects/covLab/.claude/scripts" ] || fail "project scripts link is missing"
 pass "selected project is the primary working directory and shared runtime is linked"
