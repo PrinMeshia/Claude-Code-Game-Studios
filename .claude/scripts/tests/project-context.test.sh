@@ -21,6 +21,10 @@ printf '%s\n' "$OUT" | grep -F "project_id=covLab" >/dev/null || fail "project i
 printf '%s\n' "$OUT" | grep -F "project_root=$TMP/framework/projects/covLab" >/dev/null || fail "project root not canonical"
 pass "explicit project id resolves"
 
+OUT="$(bash "$TMP/framework/.claude/scripts/project-context.sh" projects/covLab)" || fail "projects/<id> path should resolve"
+printf '%s\n' "$OUT" | grep -F "project_id=covLab" >/dev/null || fail "relative projects/<id> selector returned wrong id"
+pass "projects/<id> relative path resolves"
+
 OUT="$(CCGS_PROJECT_ROOT="$TMP/framework/projects/other" bash "$TMP/framework/.claude/scripts/project-context.sh")" || fail "absolute env selection should resolve"
 printf '%s\n' "$OUT" | grep -F "project_id=other" >/dev/null || fail "environment selection ignored"
 pass "CCGS_PROJECT_ROOT resolves"
