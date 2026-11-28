@@ -56,7 +56,7 @@ export CCGS_TEST_LOG="$TMP/claude.log"
 ) || fail "launcher should start selected project"
 EXPECTED_PROJECT="$(cd -P "$FRAMEWORK/projects/covLab" && pwd -P)"
 EXPECTED_FRAMEWORK="$(cd -P "$FRAMEWORK" && pwd -P)"
-grep -F "cwd=$EXPECTED_PROJECT" "$CCGS_TEST_LOG" >/dev/null || fail "Claude cwd is not selected project"
+if ! grep -F "cwd=$EXPECTED_PROJECT" "$CCGS_TEST_LOG" >/dev/null; then echo "Expected cwd: [$EXPECTED_PROJECT]" >&2; cat "$CCGS_TEST_LOG" >&2; fail "Claude cwd is not selected project"; fi
 grep -F "project=$EXPECTED_PROJECT" "$CCGS_TEST_LOG" >/dev/null || fail "project context was not exported"
 grep -F "framework=$EXPECTED_FRAMEWORK" "$CCGS_TEST_LOG" >/dev/null || fail "framework context was not exported"
 grep -F "arg=--add-dir" "$CCGS_TEST_LOG" >/dev/null || fail "framework was not added as a resource directory"
