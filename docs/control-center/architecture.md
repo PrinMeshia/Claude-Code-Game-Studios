@@ -38,7 +38,9 @@ Le workspace peut contenir plusieurs projets indépendants sous projects/, mais 
 
 Une première brique est maintenant présente dans `.claude/scripts/project-context.sh`. Elle expose séparément `CCGS_FRAMEWORK_ROOT`, `CCGS_PROJECT_ROOT` et `CCGS_PROJECT_ID`, accepte une sélection explicite, conserve le mode mono-projet à la racine et refuse les sélections ambiguës ou les chemins qui sortent de `projects/`. Des tests contractuels sont ajoutés dans `.claude/scripts/tests/project-context.test.sh`.
 
-Cette brique n'est pas encore intégrée aux hooks, skills, commandes ni au lanceur Claude Code. Elle ne suffit donc pas à activer le multi-projets en production. La résolution de la racine Git, le chargement du contexte moteur et la propagation de ces valeurs à toutes les invocations restent à faire et à tester.
+Le lanceur `.claude/scripts/launch-project.sh` est maintenant ajouté. Il démarre Claude Code depuis le projet sélectionné, vérifie que celui-ci est bien la racine de son dépôt Git, ajoute le framework comme répertoire de ressources et fournit les hooks via un fichier `--settings` temporaire. Pour que les scripts historiques conservent leurs chemins relatifs, il crée des liens de répertoire `project/.claude/hooks` et `project/.claude/scripts` vers les répertoires partagés. Il refuse de remplacer des répertoires projet déjà présents. Il bloque aussi les options CLI `--worktree` / `-w` et les agents dont le frontmatter déclare `isolation: worktree` (framework, projet ou configuration utilisateur).
+ 
+Le lanceur et ses tests contractuels sont écrits, mais pas encore exécutés sur Fedora ou Windows Git Bash. L'intégration des hooks doit donc être considérée comme implémentée sur le plan du code, pas encore validée en environnement réel. Le chargement des instructions additionnelles dépend de `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1`.
 
 Chaque invocation de workflow doit recevoir le contexte sélectionné. Ne pas s'appuyer uniquement sur le répertoire courant implicite. Voir [l'audit d'exécution directe](direct-execution-audit.md) pour les constats et critères d'acceptation.
 
@@ -63,6 +65,8 @@ Objectif utilisateur : les agents travaillent dans le répertoire local réel du
 5. Les opérations destructives, changements de schéma et décisions architecturales restent soumises aux validations configurées.
 6. Toute erreur de résolution du projet bloque l'écriture ; aucun fallback silencieux vers la racine du framework.
 
+Le lanceur ne passe jamais `--worktree` à Claude Code et refuse les agents configurés avec `isolation: worktree`. Il ne modifie pas `worktree.baseRef`, qui ne suffit pas à lui seul à déclencher la création d'un worktree. Cette garde est un contrôle préventif, pas encore une preuve d'exécution sur les versions Fedora/Windows utilisées. Les tâches parallèles qui écrivent dans des fichiers qui se chevauchent ne sont pas encore verrouillées par un mécanisme de sérialisation ; les scopes de coordination existants doivent être respectés jusqu'à l'ajout et la validation d'un verrou de fichiers.
+ 
 Ne pas simplement supprimer .worktreeinclude ou worktree.baseRef : l'audit statique montre que ces éléments ne prouvent pas à eux seuls la création systématique de worktrees. Il faut d'abord auditer les points d'entrée Claude Code et les options d'isolation des agents, puis garantir et tester qu'aucune invocation du Control Center ne bascule vers un worktree.
 
 ## Sécurité et gouvernance
