@@ -179,7 +179,7 @@ if [ "$PROJECT_ID" != "." ]; then
     exit 5
   fi
 
-  SETTINGS_FILE="$(mktemp "${TMPDIR:-/tmp}/ccgs-hooks.XXXXXX.json")"
+  SETTINGS_FILE="$(mktemp "${TMPDIR:-/tmp}/ccgs-hooks.XXXXXX")"
   if ! "$PYTHON" - "$FRAMEWORK_ROOT/.claude/settings.json" "$SETTINGS_FILE" <<'PY'
 import json
 import sys
