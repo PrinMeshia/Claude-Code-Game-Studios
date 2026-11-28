@@ -7,6 +7,8 @@ on:
     paths:
       - ".claude/scripts/project-context.sh"
       - ".claude/scripts/launch-project.sh"
+      - ".claude/scripts/launch-project.ps1"
+      - ".claude/scripts/launch-project.cmd"
       - ".claude/scripts/tests/**"
       - ".github/workflows/project-runtime-contracts.yml"
   workflow_dispatch:
@@ -38,3 +40,7 @@ jobs:
         run: bash .claude/scripts/tests/project-context.test.sh
       - name: Test direct project launcher
         run: bash .claude/scripts/tests/launch-project.test.sh
+      - name: Test Windows entrypoints
+        if: runner.os == "Windows"
+        shell: pwsh
+        run: .claude/scripts/tests/launch-project-windows.test.ps1
